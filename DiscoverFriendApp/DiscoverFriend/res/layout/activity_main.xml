@@ -27,14 +27,4 @@
         android:textStyle="bold"
         android:visibility="invisible" />
 
-    <Button
-        android:id="@+id/multiQueryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:gravity="center"
-        android:text="@string/multiQuery"
-        android:textStyle="bold"
-        android:visibility="invisible" />
-
 </LinearLayout>

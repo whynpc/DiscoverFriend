@@ -58,7 +58,6 @@ public class MainActivity extends FragmentActivity {
 		}
 		setContentView(R.layout.activity_main);
 
-
 		textView1 = (TextView) findViewById(R.id.textView1);
 
 		Session.openActiveSession(this, true, new Session.StatusCallback() {

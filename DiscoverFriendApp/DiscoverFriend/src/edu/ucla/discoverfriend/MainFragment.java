@@ -1,6 +1,8 @@
 package edu.ucla.discoverfriend;
 
-import java.util.Arrays;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +19,8 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.facebook.android.FacebookError;
+import com.facebook.model.GraphObject;
 import com.facebook.widget.LoginButton;
 
 public class MainFragment extends Fragment {
@@ -25,7 +29,6 @@ public class MainFragment extends Fragment {
 	private UiLifecycleHelper uiHelper;
 
 	private Button queryButton;
-	private Button multiQueryButton;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, 
@@ -36,29 +39,53 @@ public class MainFragment extends Fragment {
 		// To allow the fragment to receive the onActivityResult()
 		LoginButton authButton = (LoginButton) view.findViewById(R.id.authButton);
 		authButton.setFragment(this);
-		
+
 		queryButton = (Button) view.findViewById(R.id.queryButton);
-		multiQueryButton = (Button) view.findViewById(R.id.multiQueryButton);
 
 		queryButton.setOnClickListener(new View.OnClickListener() {
-		    @Override
-		    public void onClick(View v) {
-		        String fqlQuery = "SELECT uid, name, pic_square FROM user WHERE uid IN " +
-		              "(SELECT uid2 FROM friend WHERE uid1 = me() LIMIT 25)";
-		        Bundle params = new Bundle();
-		        params.putString("q", fqlQuery);
-		        Session session = Session.getActiveSession();
-		        Request request = new Request(session,
-		            "/fql",                         
-		            params,                         
-		            HttpMethod.GET,                 
-		            new Request.Callback(){         
-		                public void onCompleted(Response response) {
-		                    Log.i(TAG, "Result: " + response.toString());
-		                }                  
-		        }); 
-		        Request.executeBatchAsync(request);                 
-		    }
+			@Override
+			public void onClick(View v) {
+				String fqlQuery = "SELECT uid, name, pic_square FROM user WHERE uid IN " +
+				"(SELECT uid2 FROM friend WHERE uid1 = me())";
+				Bundle params = new Bundle();
+				params.putString("q", fqlQuery);
+				Session session = Session.getActiveSession();
+				Request request = new Request(session,
+						"/fql",                         
+						params,                         
+						HttpMethod.GET,                 
+						new Request.Callback(){
+					public void onCompleted(Response response) {
+						try {
+							GraphObject graphObject = response.getGraphObject();
+							if (graphObject != null) 
+							{
+								JSONObject data = graphObject.getInnerJSONObject();
+								JSONArray friendsData = data.getJSONArray("data");
+								String ids[] = new String[friendsData.length()];
+								String names[] = new String[friendsData.length()];
+								
+								Log.d(TAG, "" + friendsData.length());
+								
+								for(int i = 0; i < friendsData.length(); i++){ 
+									ids[i] = friendsData.getJSONObject(i).getString("uid");
+									names[i] = friendsData.getJSONObject(i).getString("name");
+								}
+								Log.d(TAG, "" + ids.length);
+							}
+							
+						} catch (FacebookError e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (JSONException e) {
+							Log.e(TAG, "JSON parsing error: " + e.getMessage());
+						}
+
+						Log.i(TAG, "Result: " + response.toString());
+					}                  
+				}); 
+				Request.executeBatchAsync(request);                 
+			}
 		});
 
 		return view;
@@ -69,11 +96,9 @@ public class MainFragment extends Fragment {
 			Log.i(TAG, "Logged in...");
 			// Display authenticated UI such as acquire Facebook friend list 
 			queryButton.setVisibility(View.VISIBLE);
-			multiQueryButton.setVisibility(View.VISIBLE);
 		} else if (state.isClosed()) {
 			Log.i(TAG, "Logged out...");
 			queryButton.setVisibility(View.INVISIBLE);
-			multiQueryButton.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -94,7 +119,7 @@ public class MainFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
 		// For scenarios where the main activity is launched and user
 		// session is not null, the session state change notification
 		// may not be triggered. Trigger it if it's open/closed.
