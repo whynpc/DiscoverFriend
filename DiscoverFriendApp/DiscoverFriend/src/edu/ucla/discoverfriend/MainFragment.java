@@ -22,14 +22,31 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.android.FacebookError;
 import com.facebook.model.GraphObject;
 import com.facebook.widget.LoginButton;
+import com.google.common.base.Charsets;
+import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnel;
+import com.google.common.hash.Funnels;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.google.common.hash.PrimitiveSink;
 
 public class MainFragment extends Fragment {
 
+	private static final int EXPECTED_INSERTIONS = 1000;
+	private static final double FALSE_POSITIVE_PROBABILITY = 0.01;
 	private static final String TAG = "MainFragment";
 	private UiLifecycleHelper uiHelper;
 
 	private Button queryButton;
 
+	class StringFunnel implements Funnel<String> {
+		@Override
+		public void funnel(String from, PrimitiveSink into) {
+			into.putString(from, Charsets.UTF_8);
+		}
+	}
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, 
 			ViewGroup container, 
@@ -67,11 +84,20 @@ public class MainFragment extends Fragment {
 								
 								Log.d(TAG, "" + friendsData.length());
 								
+								// TODO Move BloomFilter out of local scope or put it in an Intent
+								
+								// EXPECTED_INSERTIONS and FALSE_POSITIVE_PROBABILITY are used to calculate
+								// optimalNumOfBits and consequently, numHashFunctions. Guava uses built-in
+								// BloomFilterStrategies.MURMUR128_MITZ_32 as hashing function.
+								BloomFilter<String> bf = BloomFilter.create(new StringFunnel(), EXPECTED_INSERTIONS, FALSE_POSITIVE_PROBABILITY);
+								
 								for(int i = 0; i < friendsData.length(); i++){ 
 									ids[i] = friendsData.getJSONObject(i).getString("uid");
 									names[i] = friendsData.getJSONObject(i).getString("name");
+									bf.put(ids[i]);
 								}
 								Log.d(TAG, "" + ids.length);
+								
 							}
 							
 						} catch (FacebookError e) {
@@ -94,7 +120,6 @@ public class MainFragment extends Fragment {
 	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
 		if (state.isOpened()) {
 			Log.i(TAG, "Logged in...");
-			// Display authenticated UI such as acquire Facebook friend list 
 			queryButton.setVisibility(View.VISIBLE);
 		} else if (state.isClosed()) {
 			Log.i(TAG, "Logged out...");
