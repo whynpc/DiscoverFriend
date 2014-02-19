@@ -6,6 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="app_id">494136867363585</string>
     <string name="query">Query</string>
-    <string name="multiQuery">Multi-query</string>
+    <string name="send_broadcast">Send Broadcast</string>
+    <string name="discover_services">Discover Services</string>
 
 </resources>

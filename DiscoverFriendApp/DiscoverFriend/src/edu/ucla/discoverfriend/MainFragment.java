@@ -25,20 +25,18 @@ import com.facebook.widget.LoginButton;
 import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnel;
-import com.google.common.hash.Funnels;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import com.google.common.hash.PrimitiveSink;
 
 public class MainFragment extends Fragment {
 
-	private static final int EXPECTED_INSERTIONS = 1000;
-	private static final double FALSE_POSITIVE_PROBABILITY = 0.01;
 	private static final String TAG = "MainFragment";
+	
+	private static final int EXPECTED_INSERTIONS = 2000;
+	private static final double FALSE_POSITIVE_PROBABILITY = 0.02;
+	
 	private UiLifecycleHelper uiHelper;
 
-	private Button queryButton;
+	private Button queryButton, sendBroadcastButton;
 
 	class StringFunnel implements Funnel<String> {
 		@Override
@@ -56,8 +54,11 @@ public class MainFragment extends Fragment {
 		// To allow the fragment to receive the onActivityResult()
 		LoginButton authButton = (LoginButton) view.findViewById(R.id.authButton);
 		authButton.setFragment(this);
-
+		
+		BloomFilter<String> globalBf = BloomFilter.create(new StringFunnel(), EXPECTED_INSERTIONS, FALSE_POSITIVE_PROBABILITY);
+		
 		queryButton = (Button) view.findViewById(R.id.queryButton);
+		sendBroadcastButton = (Button) view.findViewById(R.id.sendBroadcast);
 
 		queryButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -114,6 +115,12 @@ public class MainFragment extends Fragment {
 			}
 		});
 
+		sendBroadcastButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			}
+		});
+		
 		return view;
 	}
 

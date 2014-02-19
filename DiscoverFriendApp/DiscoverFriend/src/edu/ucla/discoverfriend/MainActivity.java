@@ -8,11 +8,16 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
+import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.facebook.Request;
@@ -23,8 +28,16 @@ import com.facebook.model.GraphUser;
 
 public class MainActivity extends FragmentActivity {
 
-	private TextView textView1;
+	private static final String TAG = "MainActivity";
+
+	private Handler mUpdateHandler;
+
+	NsdHelper mNsdHelper;
+	Connection mConnection;
 	private MainFragment mainFragment;
+
+	private Button discoverServicesButton;
+	private TextView textView1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +46,10 @@ public class MainActivity extends FragmentActivity {
 		if (savedInstanceState == null) {
 			// Add the fragment on initial activity setup
 			mainFragment = new MainFragment();
-			getSupportFragmentManager().beginTransaction()
-			.add(android.R.id.content, mainFragment)
-			.commit();
+			getSupportFragmentManager().beginTransaction().add(android.R.id.content, mainFragment).commit();
 		} else {
 			// Or set the fragment from restored state info
-			mainFragment = (MainFragment) getSupportFragmentManager()
-			.findFragmentById(android.R.id.content);
+			mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(android.R.id.content);
 		}
 
 		try {
@@ -56,9 +66,11 @@ public class MainActivity extends FragmentActivity {
 		} catch (NoSuchAlgorithmException e) {
 
 		}
+
 		setContentView(R.layout.activity_main);
 
 		textView1 = (TextView) findViewById(R.id.textView1);
+
 
 		Session.openActiveSession(this, true, new Session.StatusCallback() {
 
@@ -80,9 +92,64 @@ public class MainActivity extends FragmentActivity {
 					}).executeAsync();
 				}
 			}
-
-
 		});
+
+		mUpdateHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				//String chatLine = msg.getData().getString("msg");
+				//addChatLine(chatLine);
+			}
+		};
+
+		mConnection = new Connection(mUpdateHandler);
+
+		mNsdHelper = new NsdHelper(this);
+		mNsdHelper.initializeNsd();
+
+		discoverServicesButton = (Button) findViewById(R.id.discoverServices);
+		discoverServicesButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//clickDiscover(v);
+			}
+		});
+
+	}
+
+	public void clickAdvertise(View v) {
+		// Register service
+		if(mConnection.getLocalPort() > -1) {
+			mNsdHelper.registerService(mConnection.getLocalPort());
+		} else {
+			Log.d(TAG, "ServerSocket isn't bound.");
+		}
+	}
+
+	public void clickDiscover(View v) {
+		mNsdHelper.discoverServices();
+	}
+
+	public void clickConnect(View v) {
+		NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+		if (service != null) {
+			Log.d(TAG, "Connecting.");
+			mConnection.connectToServer(service.getHost(),
+					service.getPort());
+		} else {
+			Log.d(TAG, "No service to connect to!");
+		}
+	}
+
+	public void clickSend(View v) {
+		/*EditText messageView = (EditText) this.findViewById(R.id.chatInput);
+		if (messageView != null) {
+			String messageString = messageView.getText().toString();
+			if (!messageString.isEmpty()) {
+				mConnection.sendMessage(messageString);
+			}
+			messageView.setText("");
+		}*/
 	}
 
 	@Override
@@ -97,6 +164,30 @@ public class MainActivity extends FragmentActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 
 		return true;
+	}
+
+	@Override
+	protected void onPause() {
+		if (mNsdHelper != null) {
+			mNsdHelper.tearDown();
+		}
+		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mNsdHelper != null) {
+			mNsdHelper.registerService(mConnection.getLocalPort());
+			mNsdHelper.discoverServices();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		mNsdHelper.tearDown();
+		mConnection.tearDown();
+		super.onDestroy();
 	}
 
 }
