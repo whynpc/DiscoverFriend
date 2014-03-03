@@ -10,40 +10,31 @@
         android:layout_height="wrap_content"
         android:text="@string/hello_world" />
 
-    <com.facebook.widget.LoginButton
-        android:id="@+id/authButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp" />
-
-    <Button
-        android:id="@+id/queryButton"
+    <fragment
+        android:id="@+id/frag_facebook"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:gravity="center"
-        android:text="@string/query"
-        android:textStyle="bold"
-        android:visibility="invisible" />
+        android:layout_height="@dimen/facebook_height"
+        class="edu.ucla.discoverfriend.FacebookFragment" >
 
-    <Button
-        android:id="@+id/sendBroadcast"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:gravity="center"
-        android:text="@string/send_broadcast"
-        android:textStyle="bold"
-        android:visibility="invisible" />
+        <!-- Preview: layout=@layout/row_devices -->
+    </fragment>
 
-    <Button
-        android:id="@+id/discoverServices"
+    <fragment
+        android:id="@+id/frag_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:gravity="center"
-        android:text="@string/discover_services"
-        android:textStyle="bold" />
+        android:layout_height="@dimen/phone_list_height"
+        class="edu.ucla.discoverfriend.DeviceListFragment" >
+
+        <!-- Preview: layout=@layout/row_devices -->
+    </fragment>
+
+    <fragment
+        android:id="@+id/frag_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        class="edu.ucla.discoverfriend.DeviceDetailFragment" >
+
+        <!-- Preview: layout=@layout/device_detail -->
+    </fragment>
 
 </LinearLayout>
