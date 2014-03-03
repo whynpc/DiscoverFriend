@@ -4,9 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +38,8 @@ public class FacebookFragment extends Fragment {
 	private UiLifecycleHelper uiHelper;
 
 	private Button queryButton;
-	
+	OnQueryClickListener mListener;
+
 	private View mContentView = null;
 
 	class StringFunnel implements Funnel<String> {
@@ -49,14 +51,11 @@ public class FacebookFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		//View view = inflater.inflate(R.layout.activity_main, container, false);
 		mContentView = inflater.inflate(R.layout.facebook, null);
 
 		// To allow the fragment to receive the onActivityResult()
 		LoginButton authButton = (LoginButton) mContentView.findViewById(R.id.authButton);
 		//authButton.setFragment(this);
-
-		BloomFilter<String> globalBf = BloomFilter.create(new StringFunnel(), EXPECTED_INSERTIONS, FALSE_POSITIVE_PROBABILITY);
 
 		queryButton = (Button) mContentView.findViewById(R.id.queryButton);
 
@@ -85,8 +84,6 @@ public class FacebookFragment extends Fragment {
 
 								Log.d(TAG, "" + friendsData.length());
 
-								// TODO Move BloomFilter out of local scope or put it in an Intent
-
 								// EXPECTED_INSERTIONS and FALSE_POSITIVE_PROBABILITY are used to calculate
 								// optimalNumOfBits and consequently, numHashFunctions. Guava uses built-in
 								// BloomFilterStrategies.MURMUR128_MITZ_32 as hashing function.
@@ -98,6 +95,9 @@ public class FacebookFragment extends Fragment {
 									bf.put(ids[i]);
 								}
 								Log.d(TAG, "" + ids.length);
+								Log.d(TAG, bf.toString());
+
+								mListener.onQueryClick(bf);
 
 							}
 
@@ -179,6 +179,20 @@ public class FacebookFragment extends Fragment {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		uiHelper.onSaveInstanceState(outState);
+	}
+	
+	public interface OnQueryClickListener {
+		public void onQueryClick(BloomFilter<String> bf);
+	}
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		try {
+			mListener = (OnQueryClickListener) activity;
+		} catch (ClassCastException e) {
+			throw new ClassCastException(activity.toString() + " must implement OnQueryClickListener");
+		}
 	}
 
 }

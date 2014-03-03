@@ -26,10 +26,12 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
+import com.google.common.hash.BloomFilter;
 
 import edu.ucla.discoverfriend.DeviceListFragment.DeviceActionListener;
+import edu.ucla.discoverfriend.FacebookFragment.OnQueryClickListener;
 
-public class MainActivity extends Activity implements ChannelListener, DeviceActionListener {
+public class MainActivity extends Activity implements ChannelListener, DeviceActionListener, OnQueryClickListener {
 
 	public static final String TAG = "MainActivity";
 
@@ -292,5 +294,10 @@ public class MainActivity extends Activity implements ChannelListener, DeviceAct
             }
         }
 
+    }
+    
+    @Override
+    public void onQueryClick(BloomFilter<String> bf) {
+    	//textView1.setText(bf.toString());
     }
 }
