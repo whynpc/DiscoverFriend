@@ -31,7 +31,8 @@ import com.google.common.hash.PrimitiveSink;
 public class FacebookFragment extends Fragment {
 
 	private static final String TAG = "FacebookFragment";
-
+	private String uid = "";
+	
 	private static final int EXPECTED_INSERTIONS = 2000;
 	private static final double FALSE_POSITIVE_PROBABILITY = 0.02;
 
@@ -67,11 +68,7 @@ public class FacebookFragment extends Fragment {
 				Bundle params = new Bundle();
 				params.putString("q", fqlQuery);
 				Session session = Session.getActiveSession();
-				Request request = new Request(session,
-						"/fql",                         
-						params,                         
-						HttpMethod.GET,                 
-						new Request.Callback(){
+				Request request = new Request(session, "/fql", params, HttpMethod.GET, new Request.Callback() {
 					public void onCompleted(Response response) {
 						try {
 							GraphObject graphObject = response.getGraphObject();
@@ -96,8 +93,12 @@ public class FacebookFragment extends Fragment {
 								}
 								Log.d(TAG, "" + ids.length);
 								Log.d(TAG, bf.toString());
+								Log.d(TAG, getUid());
 
-								mListener.onQueryClick(bf);
+								BloomFilter<String> bfc = bf.copy();
+								bfc.put(getUid());
+								
+								mListener.onQueryClick(bf, bfc);
 
 							}
 
@@ -111,7 +112,7 @@ public class FacebookFragment extends Fragment {
 						Log.i(TAG, "Result: " + response.toString());
 					}                  
 				}); 
-				Request.executeBatchAsync(request);                 
+				Request.executeBatchAsync(request);
 			}
 		});
 
@@ -180,11 +181,11 @@ public class FacebookFragment extends Fragment {
 		super.onSaveInstanceState(outState);
 		uiHelper.onSaveInstanceState(outState);
 	}
-	
+
 	public interface OnQueryClickListener {
-		public void onQueryClick(BloomFilter<String> bf);
+		public void onQueryClick(BloomFilter<String> bf, BloomFilter<String> bfc);
 	}
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -193,6 +194,15 @@ public class FacebookFragment extends Fragment {
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString() + " must implement OnQueryClickListener");
 		}
+		
+	}
+	
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+	
+	public String getUid() {
+		return this.uid;
 	}
 
 }

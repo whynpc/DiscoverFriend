@@ -90,7 +90,13 @@ public class MainActivity extends Activity implements ChannelListener, DeviceAct
 						@Override
 						public void onCompleted(GraphUser user, Response response) {
 							if (user != null) {
-								textView1.setText(user.getName());
+								textView1.setText(user.getId());
+								FacebookFragment fragment = (FacebookFragment) getFragmentManager().findFragmentById(R.id.frag_facebook);
+								
+								if (fragment != null) {
+									fragment.setUid(user.getId());
+								}
+								
 							}
 						}
 					}).executeAsync();
@@ -297,7 +303,7 @@ public class MainActivity extends Activity implements ChannelListener, DeviceAct
     }
     
     @Override
-    public void onQueryClick(BloomFilter<String> bf) {
+    public void onQueryClick(BloomFilter<String> bf, BloomFilter<String> bfc) {
     	//textView1.setText(bf.toString());
     }
 }
