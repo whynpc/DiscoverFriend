@@ -42,10 +42,19 @@ import java.util.List;
  */
 public class DeviceListFragment extends ListFragment implements PeerListListener {
 
-    private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
-    ProgressDialog progressDialog = null;
+	ProgressDialog progressDialog = null;
     View mContentView = null;
     private WifiP2pDevice device;
+	
+    private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
+    
+    public List<WifiP2pDevice> getPeers() {
+		return peers;
+	}
+
+	public void setPeers(List<WifiP2pDevice> peers) {
+		this.peers = peers;
+	}
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -195,12 +204,14 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * events.
      */
     public interface DeviceActionListener {
-
+    	
         void showDetails(WifiP2pDevice device);
 
         void cancelDisconnect();
 
         void connect(WifiP2pConfig config);
+        
+        void createGroup();
 
         void disconnect();
     }
