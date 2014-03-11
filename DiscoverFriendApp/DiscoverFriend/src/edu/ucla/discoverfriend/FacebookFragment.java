@@ -40,6 +40,8 @@ public class FacebookFragment extends Fragment {
 
 	private Button queryButton;
 	OnQueryClickListener mListener;
+	
+	private String[] friendId;
 
 	private View mContentView = null;
 	
@@ -50,8 +52,16 @@ public class FacebookFragment extends Fragment {
 	public String getUid() {
 		return this.uid;
 	}
-
 	
+	public String[] getFriendId() {
+		return friendId;
+	}
+
+	public void setFriendId(String[] friendId) {
+		this.friendId = friendId;
+	}
+
+
 	class StringFunnel implements Funnel<String> {
 		@Override
 		public void funnel(String from, PrimitiveSink into) {
@@ -103,6 +113,8 @@ public class FacebookFragment extends Fragment {
 								Log.d(TAG, "" + ids.length);
 								Log.d(TAG, bf.toString());
 								Log.d(TAG, getUid());
+								
+								friendId = ids;
 
 								BloomFilter<String> bfc = bf.copy();
 								bfc.put(getUid());

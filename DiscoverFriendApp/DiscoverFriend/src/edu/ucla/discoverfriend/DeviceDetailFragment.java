@@ -39,7 +39,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.common.hash.BloomFilter;
+
 import edu.ucla.discoverfriend.DeviceListFragment.DeviceActionListener;
 
 /**
@@ -54,6 +58,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 	private WifiP2pDevice device;
 	private WifiP2pInfo info;
 	ProgressDialog progressDialog = null;
+	
+	CustomNetworkPacket receivedCNP = null;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -117,6 +123,37 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 						getActivity().startService(serviceIntent);
 					}
 				});
+		
+		mContentView.findViewById(R.id.btn_yes).setOnClickListener(
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						if (receivedCNP != null) {
+							// Extract the initiator ID from BFc+ by
+							// exhaustively trying all entries in their friends
+							// list.
+							FacebookFragment fragment = (FacebookFragment) getFragmentManager().findFragmentById(R.id.frag_facebook);
+							String ids[] = fragment.getFriendId();
+							BloomFilter<String> bf = receivedCNP.getBf();
+							BloomFilter<String> bfc = receivedCNP.getBfc();
+							for (int i=0; i<ids.length; i++) {
+								if (bfc.mightContain(ids[i]) && !bf.mightContain(ids[i])) {
+									// The current friend is the initiator.
+								}
+							}
+						}
+					}
+				});
+		
+		mContentView.findViewById(R.id.btn_no).setOnClickListener(
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// Don't do anything and reset view.
+					}
+				});
 
 		return mContentView;
 	}
@@ -131,7 +168,10 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		}
 		this.info = info;
 		this.getView().setVisibility(View.VISIBLE);
+		Button btn_yes = (Button) mContentView.findViewById(R.id.btn_yes);
+		Button btn_no = (Button) mContentView.findViewById(R.id.btn_no);
 
+		
 		// The owner IP is now known.
 		TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
 		view.setText(getResources().getString(R.string.group_owner_text)
@@ -148,7 +188,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		}
 		else if (info.groupFormed) {
 			FacebookFragment fragment = (FacebookFragment) getFragmentManager().findFragmentById(R.id.frag_facebook);
-			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), info.groupOwnerAddress.getHostAddress(), fragment.getUid()).execute();
+			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), btn_yes, btn_no, info.groupOwnerAddress.getHostAddress(), fragment.getUid(), receivedCNP).execute();
 		}
 
 		// Hide the connect button.
@@ -168,6 +208,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 			progressDialog.dismiss();
 		}
 		this.getView().setVisibility(View.VISIBLE);
+		Button btn_yes = (Button) mContentView.findViewById(R.id.btn_yes);
+		Button btn_no = (Button) mContentView.findViewById(R.id.btn_no);
 		
 		// The owner IP is now known.
 		TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
@@ -178,6 +220,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		// InetAddress from WifiP2pInfo struct.
 		view = (TextView) mContentView.findViewById(R.id.device_info);
 		view.setText("Group Owner IP - " + group.getOwner().deviceAddress);
+		
 		
 		if (group.isGroupOwner()) {
 			// Provides a passphrase for legacy devices to use to connect to
@@ -198,7 +241,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		else if (!group.isGroupOwner()) {
 			((TextView) mContentView.findViewById(R.id.status_text)).setText("Attempting to retreive packet for " + SOCKET_TIMEOUT + " ms");
 			FacebookFragment fragment = (FacebookFragment) getFragmentManager().findFragmentById(R.id.frag_facebook);
-			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), group.getOwner().deviceAddress, fragment.getUid()).execute();
+			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), btn_yes, btn_no, group.getOwner().deviceAddress, fragment.getUid(), receivedCNP).execute();
 		}
 		
 		else {
@@ -252,16 +295,22 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		private TextView statusText;
 		private String host;
 		private String uid;
+		private Button btn_yes;
+		private Button btn_no;
+		private CustomNetworkPacket receivedCNP;
 
 		/**
 		 * @param context
 		 * @param statusText
 		 */
-		public ClientAsyncTask(Context context, View statusText, String host, String uid) {
+		public ClientAsyncTask(Context context, View statusText, Button btn_yes, Button btn_no, String host, String uid, CustomNetworkPacket receivedCNP) {
 			this.context = context;
 			this.statusText = (TextView) statusText;
 			this.host = host;
 			this.uid = uid;
+			this.btn_yes = btn_yes;
+			this.btn_no = btn_no;
+			this.receivedCNP = receivedCNP;
 		}
 
 		@Override
@@ -310,9 +359,14 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 			if (result != null) {
 				statusText.setText(result.getCf());
 				
-				// Check if current user is social network friends with sender
+				// Check if current user is social network friends with sender.
 				if (result.getBf().mightContain(uid)) {
-					// Prompt user to act accordingly.
+					receivedCNP = result;
+					
+					// Prompt user to act accordingly with a yes or no buttons
+					// to indicate whether or not to respond back.
+					btn_yes.setVisibility(View.VISIBLE);
+					btn_no.setVisibility(View.VISIBLE);
 				}
 				else {
 					// Ignore and don't respond.

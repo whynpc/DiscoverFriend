@@ -230,14 +230,16 @@ containing a value of this type.
         public static final int section_header=0x7f020026;
     }
     public static final class id {
-        public static final int action_settings=0x7f040031;
-        public static final int atn_direct_discover=0x7f040030;
-        public static final int atn_direct_enable=0x7f04002f;
-        public static final int authButton=0x7f04002a;
+        public static final int action_settings=0x7f040033;
+        public static final int atn_direct_discover=0x7f040032;
+        public static final int atn_direct_enable=0x7f040031;
+        public static final int authButton=0x7f04002c;
         public static final int btn_connect=0x7f04001d;
         public static final int btn_create_group=0x7f040004;
         public static final int btn_disconnect=0x7f04001e;
+        public static final int btn_no=0x7f040021;
         public static final int btn_start_server=0x7f04001f;
+        public static final int btn_yes=0x7f040020;
         public static final int com_facebook_login_activity_progress_bar=0x7f04000a;
         public static final int com_facebook_picker_activity_circle=0x7f040009;
         public static final int com_facebook_picker_checkbox=0x7f04000c;
@@ -258,27 +260,27 @@ containing a value of this type.
         public static final int com_facebook_usersettingsfragment_login_button=0x7f04001c;
         public static final int com_facebook_usersettingsfragment_logo_image=0x7f04001a;
         public static final int com_facebook_usersettingsfragment_profile_name=0x7f04001b;
-        public static final int device_address=0x7f040020;
-        public static final int device_details=0x7f04002e;
-        public static final int device_info=0x7f040021;
-        public static final int device_name=0x7f04002d;
+        public static final int device_address=0x7f040022;
+        public static final int device_details=0x7f040030;
+        public static final int device_info=0x7f040023;
+        public static final int device_name=0x7f04002f;
         public static final int frag_detail=0x7f040007;
         public static final int frag_facebook=0x7f040005;
         public static final int frag_list=0x7f040006;
-        public static final int group_ip=0x7f040023;
-        public static final int group_owner=0x7f040022;
-        public static final int group_passphrase=0x7f040024;
-        public static final int icon=0x7f040027;
+        public static final int group_ip=0x7f040025;
+        public static final int group_owner=0x7f040024;
+        public static final int group_passphrase=0x7f040026;
+        public static final int icon=0x7f040029;
         public static final int large=0x7f040002;
-        public static final int linearLayout1=0x7f04002c;
-        public static final int my_name=0x7f040028;
-        public static final int my_status=0x7f040029;
+        public static final int linearLayout1=0x7f04002e;
+        public static final int my_name=0x7f04002a;
+        public static final int my_status=0x7f04002b;
         public static final int normal=0x7f040001;
         public static final int picker_subtitle=0x7f040017;
-        public static final int queryButton=0x7f04002b;
+        public static final int queryButton=0x7f04002d;
         public static final int small=0x7f040000;
-        public static final int status_bar=0x7f040025;
-        public static final int status_text=0x7f040026;
+        public static final int status_bar=0x7f040027;
+        public static final int status_text=0x7f040028;
         public static final int textView1=0x7f040003;
     }
     public static final class layout {
