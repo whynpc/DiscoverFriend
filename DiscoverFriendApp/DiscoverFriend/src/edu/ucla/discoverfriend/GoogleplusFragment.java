@@ -1,6 +1,7 @@
 package edu.ucla.discoverfriend;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
@@ -11,6 +12,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,7 +29,7 @@ public class GoogleplusFragment extends Fragment implements
 
 	private View mContentView;
 
-	private Button signinButton;
+	private SignInButton signinButton;
 
 	private boolean mSignInClicked;
 	private boolean mIntentInProgress;
@@ -39,7 +41,7 @@ public class GoogleplusFragment extends Fragment implements
 		inflater.inflate(R.layout.googleplus, null);
 		mContentView = inflater.inflate(R.layout.googleplus, null);
 
-		signinButton = (Button) mContentView.findViewById(R.id.sign_in_button);
+		signinButton = (SignInButton) mContentView.findViewById(R.id.sign_in_button);
 		signinButton.setOnClickListener(this);
 
 		mGoogleApiClient = new GoogleApiClient.Builder(
@@ -60,6 +62,7 @@ public class GoogleplusFragment extends Fragment implements
 	public void onStart() {
 		super.onStart();
 		mGoogleApiClient.connect();
+		Log.d("discfr", "googleapiclient connected");
 	}
 
 	@Override
