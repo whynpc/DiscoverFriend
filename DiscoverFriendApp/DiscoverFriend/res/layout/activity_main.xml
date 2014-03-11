@@ -27,6 +27,13 @@
 
         <!-- Preview: layout=@layout/row_devices -->
     </fragment>
+    
+    <fragment
+        android:id="@+id/frag_googleplus"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/facebook_height"
+        class="edu.ucla.discoverfriend.GoogleplusFragment" >
+    </fragment>
 
     <fragment
         android:id="@+id/frag_list"
