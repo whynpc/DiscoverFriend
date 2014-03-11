@@ -22,6 +22,22 @@ public class CustomNetworkPacket implements Parcelable {
 		bfc = (BloomFilter<String>) parcel.readValue(cl);
 		cf = parcel.readString();
 	}
+
+	public BloomFilter<String> getBf() {
+		return bf;
+	}
+
+	public void setBf(BloomFilter<String> bf) {
+		this.bf = bf;
+	}
+
+	public BloomFilter<String> getBfc() {
+		return bfc;
+	}
+
+	public void setBfc(BloomFilter<String> bfc) {
+		this.bfc = bfc;
+	}
 	
 	public String getCf() {
 		return cf;

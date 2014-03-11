@@ -42,7 +42,16 @@ public class FacebookFragment extends Fragment {
 	OnQueryClickListener mListener;
 
 	private View mContentView = null;
+	
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+	
+	public String getUid() {
+		return this.uid;
+	}
 
+	
 	class StringFunnel implements Funnel<String> {
 		@Override
 		public void funnel(String from, PrimitiveSink into) {
@@ -195,14 +204,6 @@ public class FacebookFragment extends Fragment {
 			throw new ClassCastException(activity.toString() + " must implement OnQueryClickListener");
 		}
 		
-	}
-	
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
-	public String getUid() {
-		return this.uid;
 	}
 
 }

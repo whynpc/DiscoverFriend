@@ -147,7 +147,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 			((TextView) mContentView.findViewById(R.id.status_text)).setText(getResources().getString(R.string.server_text));
 		}
 		else if (info.groupFormed) {
-			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), info.groupOwnerAddress.getHostAddress()).execute();
+			FacebookFragment fragment = (FacebookFragment) getFragmentManager().findFragmentById(R.id.frag_facebook);
+			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), info.groupOwnerAddress.getHostAddress(), fragment.getUid()).execute();
 		}
 
 		// Hide the connect button.
@@ -196,7 +197,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		// Client prepares to accept the message passed by the server.
 		else if (!group.isGroupOwner()) {
 			((TextView) mContentView.findViewById(R.id.status_text)).setText("Attempting to retreive packet for " + SOCKET_TIMEOUT + " ms");
-			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), group.getOwner().deviceAddress).execute();
+			FacebookFragment fragment = (FacebookFragment) getFragmentManager().findFragmentById(R.id.frag_facebook);
+			new ClientAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text), group.getOwner().deviceAddress, fragment.getUid()).execute();
 		}
 		
 		else {
@@ -249,15 +251,17 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		private Context context;
 		private TextView statusText;
 		private String host;
+		private String uid;
 
 		/**
 		 * @param context
 		 * @param statusText
 		 */
-		public ClientAsyncTask(Context context, View statusText, String host) {
+		public ClientAsyncTask(Context context, View statusText, String host, String uid) {
 			this.context = context;
 			this.statusText = (TextView) statusText;
 			this.host = host;
+			this.uid = uid;
 		}
 
 		@Override
@@ -305,6 +309,14 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		protected void onPostExecute(CustomNetworkPacket result) {
 			if (result != null) {
 				statusText.setText(result.getCf());
+				
+				// Check if current user is social network friends with sender
+				if (result.getBf().mightContain(uid)) {
+					// Prompt user to act accordingly.
+				}
+				else {
+					// Ignore and don't respond.
+				}
 			}
 
 		}
