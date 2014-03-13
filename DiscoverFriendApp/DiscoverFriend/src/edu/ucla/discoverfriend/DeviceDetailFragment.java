@@ -118,8 +118,10 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 						Log.d(MainActivity.TAG, "Intent----------- ");
 						
 						Intent serviceIntent = new Intent(getActivity(), DataTransferService.class);
+						Bundle extras = new Bundle();
+						extras.putSerializable(DataTransferService.EXTRAS_DATA, ((MainActivity) getActivity()).getCnp());
 						serviceIntent.setAction(DataTransferService.ACTION_SEND_DATA);
-						serviceIntent.putExtra(DataTransferService.EXTRAS_DATA, ((MainActivity) getActivity()).getCnp());
+						serviceIntent.putExtras(extras);
 						getActivity().startService(serviceIntent);
 					}
 				});

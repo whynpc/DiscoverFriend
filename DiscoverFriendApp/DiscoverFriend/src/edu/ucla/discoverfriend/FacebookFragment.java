@@ -63,6 +63,11 @@ public class FacebookFragment extends Fragment {
 
 
 	class StringFunnel implements Funnel<String> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void funnel(String from, PrimitiveSink into) {
 			into.putString(from, Charsets.UTF_8);

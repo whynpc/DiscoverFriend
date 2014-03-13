@@ -40,7 +40,7 @@ public class DataTransferService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 
 		if (intent.getAction().equals(ACTION_SEND_DATA)) {
-			CustomNetworkPacket data = intent.getParcelableExtra(EXTRAS_DATA);
+			CustomNetworkPacket data = (CustomNetworkPacket) intent.getExtras().getSerializable(EXTRAS_DATA);
 			try {
 				/**
 				 * Create a server socket and wait for client connections. This
